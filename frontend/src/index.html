@@ -1,0 +1,552 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAM DIGITAL SOLUTIONS — المنصة التجارية المتكاملة v5.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gold: #D4AF37;
+            --dark-bg: #0b0e14;
+            --card-bg: #151a23;
+            --accent-green: #00c853;
+            --accent-red: #ff3d00;
+        }
+        body { background-color: var(--dark-bg); color: #ffffff; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .navbar-brand { font-weight: 800; color: var(--primary-gold) !important; letter-spacing: 1px; }
+        .hero-section {
+            padding: 45px 0 30px;
+            background: radial-gradient(circle at top, rgba(212, 175, 55, 0.18) 0%, rgba(11, 14, 20, 1) 75%);
+            text-align: center;
+        }
+        .card-custom {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        .pricing-popular { border: 2px solid var(--primary-gold); transform: scale(1.02); }
+        .form-label { color: #e2e8f0 !important; font-weight: 600; }
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+        }
+        .btn-gold:hover { background: linear-gradient(135deg, #FFD700 0%, #D4AF37 100%); color: #000; }
+        .badge-buy { background-color: var(--accent-green); color: #000; font-weight: 700; }
+        .badge-sell { background-color: var(--accent-red); color: #fff; font-weight: 700; }
+        .shamcash-box {
+            background: rgba(212, 175, 55, 0.07);
+            border: 1px dashed var(--primary-gold);
+            padding: 18px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-chart-line me-2"></i>SHAM DIGITAL SOLUTIONS</a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="#chartSection" class="btn btn-sm btn-outline-light">الشارت الحي</a>
+                <a href="#pricingSection" class="btn btn-sm btn-outline-light">الباقات</a>
+                <a href="#adminSection" class="btn btn-sm btn-outline-warning">لوحة الإدارة والترخيص</a>
+                <span class="badge bg-success">النسخة التجارية v5.0</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3" style="color: var(--primary-gold);">منصة إشارات التداول الذكية — النسخة التجارية المخصصة للبيع والاستخدام</h1>
+            <p class="lead text-light mb-4">نظام متكامل لإدارة المشتركين، توليد تراخيص البيع للزبائن، ومراجعة دفعات شام كاش</p>
+            <button onclick="loadLiveSignals()" class="btn btn-gold me-2"><i class="fa-solid fa-rotate me-2"></i>تحديث المؤشرات والأسعار الحية</button>
+            <a href="#adminSection" class="btn btn-outline-warning"><i class="fa-solid fa-key me-2"></i>إدارة التراخيص والعملاء</a>
+        </div>
+    </section>
+
+    <div class="container my-4">
+        
+        <!-- Live Signals Grid -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-warning mb-0"><i class="fa-solid fa-bolt me-2"></i>التوصيات الحية (RSI + MACD + Bollinger)</h3>
+            <small id="lastUpdateText" class="text-light"></small>
+        </div>
+        <div class="row g-4 mb-4" id="signalsContainer"></div>
+
+        <!-- Telegram Preview Box -->
+        <div id="telegramPreviewBox" class="card card-custom p-4 mb-5 d-none border-success">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="text-success mb-0"><i class="fa-brands fa-telegram me-2"></i>حالة إرسال إشارة التليجرام:</h5>
+                <span id="telegramModeBadge" class="badge bg-info text-dark"></span>
+            </div>
+            <pre id="telegramMessageOutput" class="bg-dark text-white p-3 rounded mt-2 mb-0" style="white-space: pre-wrap; font-family: inherit;"></pre>
+        </div>
+
+        <!-- Live TradingView Chart -->
+        <div class="row mb-5" id="chartSection">
+            <div class="col-12">
+                <div class="card card-custom p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="text-warning mb-0"><i class="fa-solid fa-chart-candlestick me-2"></i>الرسم البياني والمؤشرات المباشرة (TradingView)</h3>
+                        <div>
+                            <button onclick="changeChart('OANDA:XAUUSD')" class="btn btn-sm btn-gold me-1">شارت الذهب (XAUUSD)</button>
+                            <button onclick="changeChart('BINANCE:BTCUSDT')" class="btn btn-sm btn-outline-warning me-1">البيتكوين (BTC)</button>
+                            <button onclick="changeChart('BINANCE:ETHUSDT')" class="btn btn-sm btn-outline-warning">الإيثيريوم (ETH)</button>
+                        </div>
+                    </div>
+                    <div id="tv_chart_container" style="height: 460px; border-radius: 12px; overflow: hidden;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Packages -->
+        <div class="row mb-5" id="pricingSection">
+            <div class="col-12 text-center mb-4">
+                <h2 class="text-warning fw-bold"><i class="fa-solid fa-crown me-2"></i>باقات الاشتراك وميزات الأعضاء</h2>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 text-center">
+                    <h4 class="text-light">الباقة التجريبية (Free Trial)</h4>
+                    <h2 class="fw-bold text-warning my-3">مجاناً <small class="fs-6 text-light">/ 24 ساعة</small></h2>
+                    <ul class="list-unstyled text-light text-end mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>تجربة حية لإشارات الذهب والكريبتو</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>استخدام حاسبة المخاطر واللوت</li>
+                    </ul>
+                    <a href="#shamcash" class="btn btn-outline-warning w-100 mt-auto">ابدأ التجربة الآن</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom pricing-popular p-4 h-100 text-center">
+                    <span class="badge bg-warning text-dark mb-2 align-self-center px-3 py-1">الأكثر طلباً</span>
+                    <h4 class="text-warning fw-bold">باقة VIP الشهرية</h4>
+                    <h2 class="fw-bold text-white my-3">$30 <small class="fs-6 text-light">/ شهرياً</small></h2>
+                    <ul class="list-unstyled text-light text-end mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>جميع توصيات الذهب والعملات الرقمية</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>تحليل متعدد المؤشرات (RSI + MACD + BB)</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>تنبيهات فورية عبر بوت التليجرام الخاص</li>
+                    </ul>
+                    <a href="#shamcash" onclick="selectPlan('VIP Monthly')" class="btn btn-gold w-100 mt-auto">اشترك الآن عبر شام كاش</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom p-4 h-100 text-center">
+                    <h4 class="text-light">باقة VIP الربع سنوية</h4>
+                    <h2 class="fw-bold text-warning my-3">$75 <small class="fs-6 text-light">/ 3 أشهر</small></h2>
+                    <ul class="list-unstyled text-light text-end mb-4">
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>كافة مميزات باقة VIP الشهرية</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>أولوية الدعم الفني ومتابعة الصفقات</li>
+                    </ul>
+                    <a href="#shamcash" onclick="selectPlan('VIP Quarterly')" class="btn btn-outline-warning w-100 mt-auto">اشترك الآن عبر شام كاش</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Calculator -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card card-custom p-4">
+                    <h4 class="text-warning mb-3"><i class="fa-solid fa-calculator me-2"></i>حاسبة إدارة المخاطر وحجم اللوت</h4>
+                    <form id="riskForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">رأس المال ($):</label>
+                                <input type="number" id="balance" class="form-control bg-dark text-white border-secondary" value="1000" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">المخاطرة (%):</label>
+                                <input type="number" step="0.5" id="risk" class="form-control bg-dark text-white border-secondary" value="2.0" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">سعر الدخول:</label>
+                                <input type="number" step="0.01" id="entry" class="form-control bg-dark text-white border-secondary" value="4143.64" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">وقف الخسارة:</label>
+                                <input type="number" step="0.01" id="sl" class="form-control bg-dark text-white border-secondary" value="4164.36" required>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <button type="submit" class="btn btn-gold w-100">احسب حجم العقد الآمن</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="calcResult" class="mt-3 text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ShamCash Payment Portal -->
+        <div class="row mb-5" id="shamcash">
+            <div class="col-12">
+                <div class="card card-custom p-4">
+                    <h3 class="text-warning mb-3"><i class="fa-solid fa-money-bill-transfer me-2"></i>بوابة الدفع والتفعيل عبر شام كاش (ShamCash)</h3>
+                    <div class="shamcash-box mb-4 text-center">
+                        <div class="text-light">حساب شام كاش الرسمي لشركة SHAM DIGITAL SOLUTIONS</div>
+                        <h3 id="displayShamcashNumber" class="fw-bold my-1 text-warning">09XXXXXXXX</h3>
+                    </div>
+                    <form id="shamcashForm">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">معرّف التليجرام أو الإيميل:</label>
+                                <input type="text" id="emailInput" class="form-control bg-dark text-white border-secondary" placeholder="@username" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">الباقة:</label>
+                                <select id="planInput" class="form-select bg-dark text-white border-secondary">
+                                    <option value="VIP Monthly" data-price="30">VIP الشهرية ($30)</option>
+                                    <option value="VIP Quarterly" data-price="75">VIP ربع سنوية ($75)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">الرقم المرجعي (Transaction ID):</label>
+                                <input type="text" id="txIdInput" class="form-control bg-dark text-white border-secondary" placeholder="TXN_123456" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">رقم حساب المرسل:</label>
+                                <input type="text" id="senderInput" class="form-control bg-dark text-white border-secondary" placeholder="0933XXXXXX" required>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <button type="submit" class="btn btn-gold w-100 py-2 fs-5">إرسال وحفظ في قاعدة البيانات</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="paymentAlert" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Commercial Panel: Licenses, Payments & CSV Export -->
+        <div class="row mb-5" id="adminSection">
+            <div class="col-12 mb-4">
+                <div class="card card-custom p-4 border-warning">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="text-warning mb-0"><i class="fa-solid fa-key me-2"></i>لوحة إدارة تراخيص العملاء (مخصص للبيع والترخيص)</h3>
+                        <button onclick="loadLicenses()" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-sync me-1"></i>تحديث</button>
+                    </div>
+                    <form id="licenseForm" class="row g-3 mb-3">
+                        <div class="col-md-5">
+                            <input type="text" id="clientNameInput" class="form-control bg-dark text-white border-secondary" placeholder="اسم العميل أو الشركة المشتري للمنصة" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select id="licPlanInput" class="form-select bg-dark text-white border-secondary">
+                                <option value="SaaS Enterprise License">رخصة تشغيل تجارية كاملة (Enterprise)</option>
+                                <option value="Standard License">رخصة استخدام قياسية</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-gold w-100">توليد مفتاح ترخيص جديد</button>
+                        </div>
+                    </form>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-dark table-hover align-middle mb-0 small">
+                            <thead>
+                                <tr class="text-warning">
+                                    <th>مفتاح الترخيص (License Key)</th>
+                                    <th>اسم العميل</th>
+                                    <th>نوع الرخصة</th>
+                                    <th>تاريخ الانتهاء</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="licensesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom p-4 border-warning h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-warning mb-0"><i class="fa-solid fa-user-shield me-2"></i>مراجعة وتفعيل دفعات شام كاش</h4>
+                        <a href="/api/v1/admin/export/csv" class="btn btn-sm btn-outline-info" download="sham_payments.csv"><i class="fa-solid fa-file-csv me-1"></i>تصدير الأرباح (CSV)</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0 small">
+                            <thead>
+                                <tr class="text-warning">
+                                    <th>الطلب</th>
+                                    <th>المشترك</th>
+                                    <th>الباقة</th>
+                                    <th>TX ID</th>
+                                    <th>الحالة</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminPaymentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom p-4 border-warning h-100">
+                    <h4 class="text-warning mb-3"><i class="fa-solid fa-sliders me-2"></i>إعدادات النظام والبوت</h4>
+                    <form id="settingsForm">
+                        <div class="mb-2">
+                            <label class="form-label">توكن بوت التليجرام:</label>
+                            <input type="text" id="botTokenInput" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">معرّف القناة:</label>
+                            <input type="text" id="channelIdInput" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">رقم حساب شام كاش الرسمي:</label>
+                            <input type="text" id="shamcashNumInput" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <button type="submit" class="btn btn-gold w-100">حفظ الإعدادات</button>
+                    </form>
+                    <div id="settingsAlert" class="mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        function changeChart(symbol) {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": symbol,
+                "interval": "60",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "ar_AE",
+                "toolbar_bg": "#151a23",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
+                "container_id": "tv_chart_container"
+            });
+        }
+
+        function selectPlan(planVal) {
+            document.getElementById('planInput').value = planVal;
+        }
+
+        async function loadLiveSignals() {
+            const container = document.getElementById('signalsContainer');
+            const res = await fetch('/api/v1/signals/live');
+            const data = await res.json();
+            container.innerHTML = '';
+            data.signals.forEach(sig => {
+                const isBuy = sig.recommendation.includes('BUY');
+                const badgeClass = isBuy ? 'badge-buy' : 'badge-sell';
+                container.innerHTML += `
+                    <div class="col-md-4">
+                        <div class="card card-custom p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h4 class="mb-0 fw-bold text-warning">${sig.symbol}</h4>
+                                <span class="badge ${badgeClass} px-3 py-2">${sig.recommendation}</span>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between small">
+                                <span class="text-light">قوة الإشارة: <strong class="text-warning">${sig.confidence_score}</strong></span>
+                                <span class="text-light">MACD: <strong class="text-info">${sig.macd_trend}</strong></span>
+                            </div>
+                            <div class="p-2 bg-dark rounded mb-2 d-flex justify-content-between">
+                                <span class="text-light">سعر الدخول:</span>
+                                <strong class="text-white">$${sig.entry_price}</strong>
+                            </div>
+                            <div class="p-2 bg-dark rounded mb-2 d-flex justify-content-between">
+                                <span class="text-light">الهدف الأول (TP1):</span>
+                                <strong class="text-success">$${sig.take_profit_1}</strong>
+                            </div>
+                            <div class="p-2 bg-dark rounded mb-2 d-flex justify-content-between">
+                                <span class="text-light">الهدف الثاني (TP2):</span>
+                                <strong class="text-success">$${sig.take_profit_2}</strong>
+                            </div>
+                            <div class="p-2 bg-dark rounded mb-3 d-flex justify-content-between">
+                                <span class="text-light">وقف الخسارة (SL):</span>
+                                <strong class="text-danger">$${sig.stop_loss}</strong>
+                            </div>
+                            <button onclick="broadcastSignal('${sig.symbol}')" class="btn btn-outline-warning btn-sm w-100">
+                                <i class="fa-brands fa-telegram me-1"></i>إرسال لبوت التليجرام
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('lastUpdateText').innerText = 'آخر تحديث: ' + new Date().toLocaleTimeString();
+        }
+
+        async function broadcastSignal(symbol) {
+            const res = await fetch('/api/v1/signals/broadcast', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({symbol: symbol})
+            });
+            const data = await res.json();
+            const box = document.getElementById('telegramPreviewBox');
+            box.classList.remove('d-none');
+            document.getElementById('telegramModeBadge').innerText = data.telegram_result.status;
+            document.getElementById('telegramMessageOutput').innerText = data.telegram_result.formatted_content;
+            box.scrollIntoView({behavior: 'smooth'});
+        }
+
+        document.getElementById('riskForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                account_balance: parseFloat(document.getElementById('balance').value),
+                risk_percentage: parseFloat(document.getElementById('risk').value),
+                entry_price: parseFloat(document.getElementById('entry').value),
+                stop_loss_price: parseFloat(document.getElementById('sl').value),
+                asset_type: "GOLD"
+            };
+            const res = await fetch('/api/v1/calculator/risk', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            document.getElementById('calcResult').innerHTML = `
+                <div class="p-2 bg-dark rounded border border-warning text-light">
+                    المخاطرة: <strong class="text-warning">$${data.risk_usd}</strong> | الحجم الآمن: <strong class="text-success">${data.lot_size} Lot</strong>
+                </div>
+            `;
+        });
+
+        document.getElementById('shamcashForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const sel = document.getElementById('planInput');
+            const amount = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-price'));
+            const payload = {
+                user_id: "usr_" + Math.floor(Math.random() * 9000 + 1000),
+                email: document.getElementById('emailInput').value,
+                plan: sel.value,
+                amount: amount,
+                transaction_id: document.getElementById('txIdInput').value,
+                sender_account: document.getElementById('senderInput').value
+            };
+            const res = await fetch('/api/v1/payments/shamcash/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            document.getElementById('paymentAlert').innerHTML = `
+                <div class="alert alert-success">تم تسجيل الحوالة برقم <strong>#${data.data.payment_id}</strong> بنجاح!</div>
+            `;
+            this.reset();
+            loadAdminPayments();
+        });
+
+        async function loadSystemSettings() {
+            const res = await fetch('/api/v1/admin/settings');
+            const data = await res.json();
+            const s = data.settings;
+            document.getElementById('botTokenInput').value = s.telegram_bot_token;
+            document.getElementById('channelIdInput').value = s.telegram_channel_id;
+            document.getElementById('shamcashNumInput').value = s.shamcash_number;
+            document.getElementById('displayShamcashNumber').innerText = s.shamcash_number;
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                telegram_bot_token: document.getElementById('botTokenInput').value,
+                telegram_channel_id: document.getElementById('channelIdInput').value,
+                shamcash_number: document.getElementById('shamcashNumInput').value
+            };
+            await fetch('/api/v1/admin/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            document.getElementById('settingsAlert').innerHTML = '<div class="alert alert-success py-1 small">تم حفظ الإعدادات بنجاح!</div>';
+            loadSystemSettings();
+        });
+
+        async function loadAdminPayments() {
+            const tbody = document.getElementById('adminPaymentsTable');
+            const res = await fetch('/api/v1/admin/payments');
+            const data = await res.json();
+            if (!data.payments || data.payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-light">لا توجد حوالات مسجلة</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            data.payments.forEach(p => {
+                let badge = '<span class="badge bg-warning text-dark">معلق</span>';
+                if (p.status === 'APPROVED') badge = '<span class="badge bg-success">مقبول</span>';
+                if (p.status === 'REJECTED') badge = '<span class="badge bg-danger">مرفوض</span>';
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-warning">#${p.payment_id}</td>
+                        <td>${p.email}</td>
+                        <td>${p.plan}</td>
+                        <td><code class="text-info">${p.transaction_id}</code></td>
+                        <td>${badge}</td>
+                        <td>
+                            <button onclick="updatePayment('${p.payment_id}', 'APPROVED')" class="btn btn-sm btn-success">قبول</button>
+                            <button onclick="updatePayment('${p.payment_id}', 'REJECTED')" class="btn btn-sm btn-danger">رفض</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function updatePayment(payment_id, status) {
+            await fetch('/api/v1/admin/payments/verify', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({payment_id: payment_id, status: status})
+            });
+            loadAdminPayments();
+        }
+
+        document.getElementById('licenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const payload = {
+                client_name: document.getElementById('clientNameInput').value,
+                plan_type: document.getElementById('licPlanInput').value
+            };
+            await fetch('/api/v1/admin/licenses/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            this.reset();
+            loadLicenses();
+        });
+
+        async function loadLicenses() {
+            const tbody = document.getElementById('licensesTable');
+            const res = await fetch('/api/v1/admin/licenses');
+            const data = await res.json();
+            if (!data.licenses || data.licenses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-light">لا توجد تراخيص مصدرة للعملاء حالياً</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            data.licenses.forEach(l => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><code class="text-warning">${l.license_key}</code></td>
+                        <td>${l.client_name}</td>
+                        <td>${l.plan_type}</td>
+                        <td>${l.expires_at}</td>
+                        <td><span class="badge bg-success">${l.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.onload = () => {
+            loadLiveSignals();
+            loadSystemSettings();
+            loadAdminPayments();
+            loadLicenses();
+            changeChart('OANDA:XAUUSD');
+        };
+    </script>
+</body>
+</html>
